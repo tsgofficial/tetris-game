@@ -6,6 +6,9 @@ class Shape {
 
     private Tetrominoes pieceShape;
     private Point[] shape;
+    private Point[] positions;
+    private Point[] ghostPositions; // Stores the ghost piece position
+
     private static final Point[][] TetrominoShapes = {
         {new Point(0, 0)},
         {new Point(0, -1), new Point(0, 0), new Point(0, 1), new Point(1, 1)}, // L Shape
@@ -18,6 +21,7 @@ class Shape {
 
     public Shape() {
         setRandomShape();
+        initializePositions(4, 0);
     }
 
     public void setRandomShape() {
@@ -34,32 +38,52 @@ class Shape {
         return pieceShape;
     }
 
-    public void rotate(int currentX, int currentY, Tetrominoes[][] board) {
-        Point[] rotatedShape = new Point[shape.length];
-        for (int i = 0; i < shape.length; i++) {
-            rotatedShape[i] = new Point(-shape[i].y, shape[i].x);
-        }
-
-        int shiftX = 0;
-        while (!canRotate(rotatedShape, shiftX, currentX, currentY, board)) {
-            shiftX--;
-            if (shiftX < -2) {
-                return; // Prevent infinite shifting
-
-            }
-        }
-
-        for (int i = 0; i < rotatedShape.length; i++) {
-            rotatedShape[i] = new Point(rotatedShape[i].x + shiftX, rotatedShape[i].y);
-        }
-        shape = rotatedShape;
+    public Point[] getPositions() {
+        return positions;
     }
 
-    private boolean canRotate(Point[] rotatedShape, int shiftX, int currentX, int currentY, Tetrominoes[][] board) {
-        for (Point p : rotatedShape) {
-            int x = currentX + p.x + shiftX;
-            int y = currentY + p.y;
-            if (x < 0 || x >= 10 || y >= 20 || (y >= 0 && board[x][y] != Tetrominoes.NoShape)) {
+    public Point[] getGhostPositions() {
+        return ghostPositions;
+    }
+
+    public void setGhostPositions(Point[] ghostPositions) {
+        this.ghostPositions = ghostPositions;
+    }
+
+    public void initializePositions(int x, int y) {
+        positions = new Point[shape.length];
+        for (int i = 0; i < shape.length; i++) {
+            positions[i] = new Point(x + shape[i].x, y + shape[i].y);
+        }
+    }
+
+    public void move(int dx, int dy) {
+        for (Point p : positions) {
+            p.translate(dx, dy);
+        }
+    }
+
+    public void rotate(Tetrominoes[][] board) {
+        if (pieceShape == Tetrominoes.NoShape) {
+            return;
+        }
+        Point pivot = positions[1];
+        Point[] rotatedPositions = new Point[shape.length];
+
+        for (int i = 0; i < shape.length; i++) {
+            int newX = pivot.x - (positions[i].y - pivot.y);
+            int newY = pivot.y + (positions[i].x - pivot.x);
+            rotatedPositions[i] = new Point(newX, newY);
+        }
+
+        if (canRotate(rotatedPositions, board)) {
+            positions = rotatedPositions;
+        }
+    }
+
+    private boolean canRotate(Point[] rotatedPositions, Tetrominoes[][] board) {
+        for (Point p : rotatedPositions) {
+            if (p.x < 0 || p.x >= 10 || p.y >= 20 || (p.y >= 0 && board[p.x][p.y] != Tetrominoes.NoShape)) {
                 return false;
             }
         }

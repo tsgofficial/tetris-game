@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import javax.swing.*;
 
 public class Tetris extends JPanel implements ActionListener {
@@ -15,24 +16,30 @@ public class Tetris extends JPanel implements ActionListener {
     private boolean isFallingFinished = false;
     private boolean isStarted = false;
     private boolean isPaused = false;
-    private int currentX = 0;
-    private int currentY = 0;
+    private int score = 0;
+    private int bestScore = 0;
     private Shape currentPiece;
     private Tetrominoes[][] board;
 
     public Tetris() {
         setFocusable(true);
+        setPreferredSize(new Dimension(BOARD_WIDTH * CELL_SIZE + 150, BOARD_HEIGHT * CELL_SIZE)); // Extra space for UI
+        setBorder(BorderFactory.createLineBorder(Color.WHITE, 5)); // Add a white border
+
         board = new Tetrominoes[BOARD_WIDTH][BOARD_HEIGHT];
         addKeyListener(new TAdapter());
         timer = new Timer(400, this);
+        loadBestScore();
         start();
     }
 
     public void start() {
         isStarted = true;
+        score = 0; // Reset score
         clearBoard();
         newPiece();
         timer.start();
+        repaint();
     }
 
     private void clearBoard() {
@@ -44,6 +51,8 @@ public class Tetris extends JPanel implements ActionListener {
     }
 
     private void checkFullRows() {
+        int rowsCleared = 0;
+
         for (int j = BOARD_HEIGHT - 1; j >= 0; j--) {
             boolean isFull = true;
             for (int i = 0; i < BOARD_WIDTH; i++) {
@@ -54,7 +63,16 @@ public class Tetris extends JPanel implements ActionListener {
             }
             if (isFull) {
                 removeRow(j);
-                j++; // Recheck the same row after shifting
+                rowsCleared++;
+                j++;
+            }
+        }
+
+        if (rowsCleared > 0) {
+            score += (rowsCleared * 100);
+            if (score > bestScore) {
+                bestScore = score;
+                saveBestScore();
             }
         }
     }
@@ -72,26 +90,63 @@ public class Tetris extends JPanel implements ActionListener {
 
     private void newPiece() {
         currentPiece = new Shape();
-        currentX = BOARD_WIDTH / 2 - 1;
-        currentY = 0;
-        if (!tryMove(currentPiece, currentX, currentY)) {
+        updateGhostPiece();
+
+        if (!tryMove(0, 0)) {
             isStarted = false;
             timer.stop();
+
+            JOptionPane.showMessageDialog(null, "Game Over!\nYour Score: " + score + "\nBest Score: " + bestScore, "Game Over", JOptionPane.INFORMATION_MESSAGE);
+
+            start();
         }
     }
 
-    private boolean tryMove(Shape newPiece, int newX, int newY) {
-        for (Point p : newPiece.getShape()) {
-            int x = newX + p.x;
-            int y = newY + p.y;
-            if (x < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT || (y >= 0 && board[x][y] != Tetrominoes.NoShape)) {
+    private boolean tryMove(int dx, int dy) {
+        Point[] originalPositions = currentPiece.getPositions();
+        Point[] newPositions = new Point[originalPositions.length];
+
+        for (int i = 0; i < originalPositions.length; i++) {
+            newPositions[i] = new Point(originalPositions[i].x + dx, originalPositions[i].y + dy);
+            if (newPositions[i].x < 0 || newPositions[i].x >= BOARD_WIDTH || newPositions[i].y >= BOARD_HEIGHT || (newPositions[i].y >= 0 && board[newPositions[i].x][newPositions[i].y] != Tetrominoes.NoShape)) {
                 return false;
             }
         }
-        currentPiece = newPiece;
-        currentX = newX;
-        currentY = newY;
+        currentPiece.move(dx, dy);
+        updateGhostPiece();
         repaint();
+        return true;
+    }
+
+    private void updateGhostPiece() {
+        if (currentPiece == null) {
+            return;
+        }
+
+        Point[] ghost = new Point[currentPiece.getPositions().length];
+
+        for (int i = 0; i < ghost.length; i++) {
+            ghost[i] = new Point(currentPiece.getPositions()[i]);
+        }
+
+        while (canMove(ghost, 0, 1)) {
+            for (Point p : ghost) {
+                p.y += 1;
+            }
+        }
+
+        currentPiece.setGhostPositions(ghost);
+    }
+
+    private boolean canMove(Point[] positions, int dx, int dy) {
+        for (Point p : positions) {
+            int newX = p.x + dx;
+            int newY = p.y + dy;
+
+            if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT || (newY >= 0 && board[newX][newY] != Tetrominoes.NoShape)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -106,29 +161,24 @@ public class Tetris extends JPanel implements ActionListener {
     }
 
     private void oneLineDown() {
-        if (!tryMove(currentPiece, currentX, currentY + 1)) {
+        if (!tryMove(0, 1)) {
             pieceDropped();
         }
     }
 
-    private void dropInstantly() {
-        while (tryMove(currentPiece, currentX, currentY + 1)) {
-            currentY++;
-        }
-        pieceDropped();
-    }
-
     private void pieceDropped() {
-        for (Point p : currentPiece.getShape()) {
-            board[currentX + p.x][currentY + p.y] = currentPiece.getTetromino();
+        for (Point p : currentPiece.getPositions()) {
+            board[p.x][p.y] = currentPiece.getTetromino();
         }
         isFallingFinished = true;
+        checkFullRows();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         setBackground(Color.BLACK);
+
         for (int i = 0; i < BOARD_WIDTH; i++) {
             for (int j = 0; j < BOARD_HEIGHT; j++) {
                 if (board[i][j] != Tetrominoes.NoShape) {
@@ -137,22 +187,49 @@ public class Tetris extends JPanel implements ActionListener {
             }
         }
 
-        if (currentPiece != null) {
-            g.setColor(Color.RED);
-            for (Point p : currentPiece.getShape()) {
-                int x = (currentX + p.x) * CELL_SIZE;
-                int y = (currentY + p.y) * CELL_SIZE;
-                drawSquare(g, x, y, currentPiece.getTetromino());
+        if (currentPiece != null && currentPiece.getGhostPositions() != null) {
+            g.setColor(Color.GRAY);
+            for (Point p : currentPiece.getGhostPositions()) {
+                drawSquare(g, p.x * CELL_SIZE, p.y * CELL_SIZE, Tetrominoes.NoShape);
             }
         }
+
+        if (currentPiece != null) {
+            g.setColor(Color.RED);
+            for (Point p : currentPiece.getPositions()) {
+                drawSquare(g, p.x * CELL_SIZE, p.y * CELL_SIZE, currentPiece.getTetromino());
+            }
+        }
+
+        // Draw Score and Best Score
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString("Score: " + score, BOARD_WIDTH * CELL_SIZE + 10, 50);
+        g.drawString("Best Score: " + bestScore, BOARD_WIDTH * CELL_SIZE + 10, 80);
     }
 
     private void drawSquare(Graphics g, int x, int y, Tetrominoes shape) {
-        Color[] colors = {Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.ORANGE};
+        Color[] colors = {Color.WHITE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.ORANGE};
         g.setColor(colors[shape.ordinal()]);
         g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
         g.setColor(Color.DARK_GRAY);
         g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+    }
+
+    private void loadBestScore() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("bestscore.txt"))) {
+            bestScore = Integer.parseInt(reader.readLine());
+        } catch (IOException | NumberFormatException e) {
+            bestScore = 0;
+        }
+    }
+
+    private void saveBestScore() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("bestscore.txt"))) {
+            writer.write(String.valueOf(bestScore));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class TAdapter extends KeyAdapter {
@@ -165,22 +242,23 @@ public class Tetris extends JPanel implements ActionListener {
             int keycode = e.getKeyCode();
             switch (keycode) {
                 case KeyEvent.VK_LEFT:
-                    tryMove(currentPiece, currentX - 1, currentY);
-                    checkFullRows();
+                    tryMove(-1, 0);
                     break;
                 case KeyEvent.VK_RIGHT:
-                    tryMove(currentPiece, currentX + 1, currentY);
-                    checkFullRows();
+                    tryMove(1, 0);
                     break;
                 case KeyEvent.VK_DOWN:
                     oneLineDown();
                     break;
                 case KeyEvent.VK_UP:
-                    currentPiece.rotate(currentX, currentY, board);
+                    currentPiece.rotate(board);
+                    updateGhostPiece();
                     repaint();
                     break;
                 case KeyEvent.VK_SPACE:
-                    dropInstantly();
+                    while (tryMove(0, 1)) {
+                    }
+                    pieceDropped();
                     break;
             }
         }
@@ -189,9 +267,13 @@ public class Tetris extends JPanel implements ActionListener {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Tetris");
         Tetris game = new Tetris();
+
         frame.add(game);
-        frame.setSize(300, 750);
+        frame.setSize(400, 650); // Increased width to fit score display
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.setLocationRelativeTo(null); // Center the window
         frame.setVisible(true);
     }
+
 }
