@@ -21,10 +21,16 @@ public class Tetris extends JPanel implements ActionListener {
     private Shape currentPiece;
     private Tetrominoes[][] board;
 
-    public Tetris() {
+    private JLabel scoreLabel;
+    private JLabel bestScoreLabel;
+
+    public Tetris(JLabel scoreLabel, JLabel bestScoreLabel) {
+        this.scoreLabel = scoreLabel;
+        this.bestScoreLabel = bestScoreLabel;
+
         setFocusable(true);
-        setPreferredSize(new Dimension(BOARD_WIDTH * CELL_SIZE + 150, BOARD_HEIGHT * CELL_SIZE)); // Extra space for UI
-        setBorder(BorderFactory.createLineBorder(Color.WHITE, 5)); // Add a white border
+        setPreferredSize(new Dimension(BOARD_WIDTH * CELL_SIZE, BOARD_HEIGHT * CELL_SIZE));
+        setBorder(BorderFactory.createLineBorder(Color.WHITE, 5));
 
         board = new Tetrominoes[BOARD_WIDTH][BOARD_HEIGHT];
         addKeyListener(new TAdapter());
@@ -35,11 +41,17 @@ public class Tetris extends JPanel implements ActionListener {
 
     public void start() {
         isStarted = true;
-        score = 0; // Reset score
+        score = 0;
+        updateScoreLabels();
         clearBoard();
         newPiece();
         timer.start();
         repaint();
+    }
+
+    private void updateScoreLabels() {
+        scoreLabel.setText("Score: " + score);
+        bestScoreLabel.setText("Best: " + bestScore);
     }
 
     private void clearBoard() {
@@ -74,6 +86,7 @@ public class Tetris extends JPanel implements ActionListener {
                 bestScore = score;
                 saveBestScore();
             }
+            updateScoreLabels();
         }
     }
 
@@ -97,7 +110,6 @@ public class Tetris extends JPanel implements ActionListener {
             timer.stop();
 
             JOptionPane.showMessageDialog(null, "Game Over!\nYour Score: " + score + "\nBest Score: " + bestScore, "Game Over", JOptionPane.INFORMATION_MESSAGE);
-
             start();
         }
     }
@@ -200,12 +212,6 @@ public class Tetris extends JPanel implements ActionListener {
                 drawSquare(g, p.x * CELL_SIZE, p.y * CELL_SIZE, currentPiece.getTetromino());
             }
         }
-
-        // Draw Score and Best Score
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + score, BOARD_WIDTH * CELL_SIZE + 10, 50);
-        g.drawString("Best Score: " + bestScore, BOARD_WIDTH * CELL_SIZE + 10, 80);
     }
 
     private void drawSquare(Graphics g, int x, int y, Tetrominoes shape) {
@@ -228,7 +234,6 @@ public class Tetris extends JPanel implements ActionListener {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("bestscore.txt"))) {
             writer.write(String.valueOf(bestScore));
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -265,15 +270,36 @@ public class Tetris extends JPanel implements ActionListener {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Tetris");
-        Tetris game = new Tetris();
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Tetris");
 
-        frame.add(game);
-        frame.setSize(400, 650); // Increased width to fit score display
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null); // Center the window
-        frame.setVisible(true);
+            JPanel scorePanel = new JPanel();
+            scorePanel.setLayout(new FlowLayout());
+            scorePanel.setBackground(Color.BLACK);
+
+            JLabel scoreLabel = new JLabel("Score: 0");
+            scoreLabel.setForeground(Color.WHITE);
+            scoreLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+            JLabel bestScoreLabel = new JLabel("Best: 0");
+            bestScoreLabel.setForeground(Color.WHITE);
+            bestScoreLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+            scorePanel.add(scoreLabel);
+            scorePanel.add(Box.createHorizontalStrut(20));
+            scorePanel.add(bestScoreLabel);
+
+            Tetris game = new Tetris(scoreLabel, bestScoreLabel);
+
+            frame.setLayout(new BorderLayout());
+            frame.add(scorePanel, BorderLayout.NORTH);
+            frame.add(game, BorderLayout.CENTER);
+
+            frame.setSize(303, 670);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setResizable(false);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
     }
-
 }

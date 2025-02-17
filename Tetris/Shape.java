@@ -7,7 +7,7 @@ class Shape {
     private Tetrominoes pieceShape;
     private Point[] shape;
     private Point[] positions;
-    private Point[] ghostPositions; // Stores the ghost piece position
+    private Point[] ghostPositions;
 
     private static final Point[][] TetrominoShapes = {
         {new Point(0, 0)},
