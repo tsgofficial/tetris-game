@@ -12,6 +12,7 @@ public class Tetris extends JPanel implements ActionListener {
     private final int BOARD_WIDTH = 10;
     private final int BOARD_HEIGHT = 20;
     private final int CELL_SIZE = 30;
+    private final int BLOCK_SIZE = 26;
     private final Timer timer;
     private boolean isFallingFinished = false;
     private boolean isStarted = false;
@@ -217,9 +218,9 @@ public class Tetris extends JPanel implements ActionListener {
     private void drawSquare(Graphics g, int x, int y, Tetrominoes shape) {
         Color[] colors = {Color.WHITE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.ORANGE};
         g.setColor(colors[shape.ordinal()]);
-        g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+        g.fillRect(x, y, BLOCK_SIZE, BLOCK_SIZE);
         g.setColor(Color.DARK_GRAY);
-        g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+        g.drawRect(x, y, BLOCK_SIZE, BLOCK_SIZE);
     }
 
     private void loadBestScore() {
