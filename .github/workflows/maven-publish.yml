@@ -19,5 +19,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Run Maven Build + Tests + Coverage Check
-        run: mvn clean test checkstyle:check jacoco:check
+      - name: Run Checkstyle
+        run: mvn checkstyle:check
+
+      - name: Run Unit Tests + Enforce Coverage
+        run: mvn test jacoco:check
+
+      - name: Generate JaCoCo Coverage Report
+        run: mvn jacoco:report
