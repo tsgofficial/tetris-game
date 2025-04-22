@@ -1,3 +1,4 @@
+package mn.edu.sict;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -219,8 +220,16 @@ public class Tetris extends JPanel implements ActionListener {
     }
 
     private void drawSquare(Graphics g, int x, int y, Tetrominoes shape) {
-        Color[] colors = { Color.WHITE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA,
-                Color.ORANGE };
+        Color[] colors = { 
+            Color.WHITE, 
+            Color.BLUE, 
+            Color.RED, 
+            Color.GREEN, 
+            Color.YELLOW, 
+            Color.CYAN, 
+            Color.MAGENTA,
+            Color.ORANGE 
+        };
         g.setColor(colors[shape.ordinal()]);
         g.fillRect(x, y, BLOCK_SIZE, BLOCK_SIZE);
         g.setColor(Color.DARK_GRAY);

@@ -1,3 +1,4 @@
 {
-  "java.project.sourcePaths": ["Tetris", "src/main/java/mn/edu/sict"]
+  "java.project.sourcePaths": ["Tetris", "src/main/java/mn/edu/sict"],
+  "java.configuration.updateBuildConfiguration": "automatic"
 }

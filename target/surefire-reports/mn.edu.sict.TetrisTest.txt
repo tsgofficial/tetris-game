@@ -1,0 +1,55 @@
+-------------------------------------------------------------------------------
+Test set: mn.edu.sict.TetrisTest
+-------------------------------------------------------------------------------
+Tests run: 18, Failures: 3, Errors: 1, Skipped: 0, Time elapsed: 0.289 s <<< FAILURE! -- in mn.edu.sict.TetrisTest
+mn.edu.sict.TetrisTest.testTimerActionPerformsGameLogic -- Time elapsed: 0.009 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Piece should move down on timer event ==> expected: <6> but was: <5>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:563)
+	at mn.edu.sict.TetrisTest.testTimerActionPerformsGameLogic(TetrisTest.java:292)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+mn.edu.sict.TetrisTest.testTryMoveSuccess -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <6> but was: <5>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:531)
+	at mn.edu.sict.TetrisTest.testTryMoveSuccess(TetrisTest.java:112)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+mn.edu.sict.TetrisTest.testOneLineDown -- Time elapsed: 0.001 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <7> but was: <6>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:531)
+	at mn.edu.sict.TetrisTest.testOneLineDown(TetrisTest.java:197)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+mn.edu.sict.TetrisTest.testPieceDroppedUpdatesBoard -- Time elapsed: 0 s <<< ERROR!
+java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 20
+	at mn.edu.sict.Tetris.pieceDropped(Tetris.java:188)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at mn.edu.sict.TestUtils.invokePieceDropped(TestUtils.java:137)
+	at mn.edu.sict.TetrisTest.testPieceDroppedUpdatesBoard(TetrisTest.java:75)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
