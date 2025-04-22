@@ -110,7 +110,8 @@ public class Tetris extends JPanel implements ActionListener {
             isStarted = false;
             timer.stop();
 
-            JOptionPane.showMessageDialog(null, "Game Over!\nYour Score: " + score + "\nBest Score: " + bestScore, "Game Over", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Game Over!\nYour Score: " + score + "\nBest Score: " + bestScore,
+                    "Game Over", JOptionPane.INFORMATION_MESSAGE);
             start();
         }
     }
@@ -121,7 +122,8 @@ public class Tetris extends JPanel implements ActionListener {
 
         for (int i = 0; i < originalPositions.length; i++) {
             newPositions[i] = new Point(originalPositions[i].x + dx, originalPositions[i].y + dy);
-            if (newPositions[i].x < 0 || newPositions[i].x >= BOARD_WIDTH || newPositions[i].y >= BOARD_HEIGHT || (newPositions[i].y >= 0 && board[newPositions[i].x][newPositions[i].y] != Tetrominoes.NoShape)) {
+            if (newPositions[i].x < 0 || newPositions[i].x >= BOARD_WIDTH || newPositions[i].y >= BOARD_HEIGHT
+                    || (newPositions[i].y >= 0 && board[newPositions[i].x][newPositions[i].y] != Tetrominoes.NoShape)) {
                 return false;
             }
         }
@@ -156,7 +158,8 @@ public class Tetris extends JPanel implements ActionListener {
             int newX = p.x + dx;
             int newY = p.y + dy;
 
-            if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT || (newY >= 0 && board[newX][newY] != Tetrominoes.NoShape)) {
+            if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT
+                    || (newY >= 0 && board[newX][newY] != Tetrominoes.NoShape)) {
                 return false;
             }
         }
@@ -216,7 +219,8 @@ public class Tetris extends JPanel implements ActionListener {
     }
 
     private void drawSquare(Graphics g, int x, int y, Tetrominoes shape) {
-        Color[] colors = {Color.WHITE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.ORANGE};
+        Color[] colors = { Color.WHITE, Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA,
+                Color.ORANGE };
         g.setColor(colors[shape.ordinal()]);
         g.fillRect(x, y, BLOCK_SIZE, BLOCK_SIZE);
         g.setColor(Color.DARK_GRAY);
